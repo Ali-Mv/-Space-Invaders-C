@@ -199,7 +199,7 @@ void EditInfo() {
     if (choice == 1) {
         char newName[MAX_USERNAME_LEN];
         printf("Enter new username: ");
-        scanf("%s", newName);
+        scanf("%20s", newName);
 
         FILE* fp = fopen(USER_FILE, "rb");
         User temp;
