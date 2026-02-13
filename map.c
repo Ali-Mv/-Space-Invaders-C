@@ -2,9 +2,6 @@
 
 char gameMap[MAP_HEIGHT][MAP_WIDTH];
 
-void Map_Init() {
-    Map_Clear();
-}
 
 void Map_Clear() {
     for (int y = 0; y < MAP_HEIGHT; y++) {
