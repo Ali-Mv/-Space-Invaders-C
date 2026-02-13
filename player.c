@@ -1,14 +1,13 @@
 #include "defines.h"
 
-extern Player playerObj;
 
 void Player_Init() {
     playerObj.x = MAP_WIDTH / 2;
     playerObj.y = MAP_HEIGHT - 2;
     playerObj.skin = 'A';
-    playerObj.maxHp = 100 + (currentUser.health_lvl * 10);
+    playerObj.maxHp = DEFAULT_HP + currentUser.health_lvl;
     playerObj.hp = playerObj.maxHp;
-    playerObj.damage = 10;
+    playerObj.damage = DEFAULT_DAMAGE + currentUser.damage_lvl;
 }
 
 void Player_Update(char input) {
@@ -26,7 +25,7 @@ void Player_Update(char input) {
         playerObj.y++;
     }
 
-    if (input == 32) {
+    if (input == space) {
         Bullet_Spawn(playerObj.x, playerObj.y - 1, true);
     }
 }

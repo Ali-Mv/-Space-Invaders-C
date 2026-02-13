@@ -1,9 +1,7 @@
 #include "defines.h"
-#include <math.h>
 
-Enemy enemies[MAX_ENEMIES];
-Player playerObj;
-extern User currentUser;
+
+
 
 void Enemy_Init() {
     for (int i = 0; i < MAX_ENEMIES; i++) {
@@ -12,24 +10,33 @@ void Enemy_Init() {
 }
 
 void Enemy_Spawner(int timer) {
-    int currentLevel = currentUser.max_level;
-    double prob = 0.02 + (0.0025 * currentLevel);
-    if (prob > 0.4) prob = 0.4;
+    int Level = currentUser.max_level;
 
-    if ((rand() % 10000) < (prob * 10000)) {
+    double spawnProb = 0.02 + (0.0025 * Level);
+    if (spawnProb > 0.4) spawnProb = 0.4;
+
+    if (((double)rand() / RAND_MAX) < spawnProb) {
         for (int i = 0; i < MAX_ENEMIES; i++) {
             if (!enemies[i].active) {
                 enemies[i].active = true;
-                enemies[i].hp = 20 + (currentLevel * 2);
                 enemies[i].x = (rand() % (MAP_WIDTH - 4)) + 2;
                 enemies[i].y = 1;
-
-                if (rand() % 2 == 0)
-                    enemies[i].type = 0;
-                else
-                    enemies[i].type = 1;
-
                 enemies[i].shootTimer = 0;
+
+                double shooterProb = 0.01 * Level;
+                if (shooterProb > 0.5) shooterProb = 0.5;
+
+                if (((double)rand() / RAND_MAX) < shooterProb) {
+                    enemies[i].type = 1;
+                    enemies[i].hp = 1 + (Level / 15);
+                }
+                else {
+                    enemies[i].type = 0;
+                    enemies[i].hp = 2 + (Level / 10);
+                }
+
+                enemies[i].damage = 1 + (Level / 20);
+
                 break;
             }
         }
@@ -43,24 +50,15 @@ void Enemy_Update(int timer) {
         if (!enemies[i].active) continue;
 
         if (enemies[i].type == 0) {
-            int dx = abs(playerObj.x - enemies[i].x);
-            int dy = abs(playerObj.y - enemies[i].y);
+            if (enemies[i].x < playerObj.x) enemies[i].x++;
+            else if (enemies[i].x > playerObj.x) enemies[i].x--;
 
-            if (dx + dy == 0) continue;
+            if (enemies[i].y < playerObj.y) enemies[i].y++;
+            else if (enemies[i].y > playerObj.y) enemies[i].y--;
 
-            int moveProb = (dx * 100) / (dx + dy);
-
-            if ((rand() % 100) < moveProb) {
-                if (enemies[i].x < playerObj.x) enemies[i].x++;
-                else if (enemies[i].x > playerObj.x) enemies[i].x--;
-            }
-            else {
-                if (enemies[i].y < playerObj.y) enemies[i].y++;
-                else if (enemies[i].y > playerObj.y) enemies[i].y--;
-            }
-
-            if (enemies[i].x == playerObj.x && enemies[i].y == playerObj.y) {
-                playerObj.hp -= 15;
+            if (abs(enemies[i].x - playerObj.x) <= 1 &&
+                abs(enemies[i].y - playerObj.y) <= 1) {
+                playerObj.hp -= enemies[i].damage;
                 enemies[i].active = false;
             }
         }
@@ -77,21 +75,18 @@ void Enemy_Update(int timer) {
             }
 
             enemies[i].shootTimer++;
-            if (enemies[i].shootTimer > 15) {
-                if (rand() % 10 < 4) {
-                    Bullet_Spawn(enemies[i].x, enemies[i].y + 1, false);
-                }
+            if (enemies[i].shootTimer > 20) {
+                Bullet_Spawn(enemies[i].x, enemies[i].y + 1, false);
                 enemies[i].shootTimer = 0;
             }
         }
     }
 }
-
 void Enemy_Draw() {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (enemies[i].active) {
-            char skin = (enemies[i].type == 0) ? 'M' : 'S';
-            Map_SetCell(enemies[i].x, enemies[i].y, skin);
+            char symbol = (enemies[i].type == 0) ? 'M' : 'S';
+            Map_SetCell(enemies[i].x, enemies[i].y, symbol);
         }
     }
 }
