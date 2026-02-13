@@ -6,3 +6,4 @@ int ShowMenu();
 void ShowLeaderBord();
 void GoShop();
 void EditInfo();
+void SaveChangesToFile();

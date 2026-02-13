@@ -1,8 +1,12 @@
-#pragma warning(disable:4996)
 #include "defines.h"
 
+User currentUser;
+
 int main() {
+
 	WelcomeUser();
+
+
 	while (1) {
 		
 		int login_status = AskPlayerLogin();
@@ -18,7 +22,7 @@ int main() {
 				Login();
 				break;
 		}
-
+		
 		while (1) {
 			int choice = ShowMenu();
 			if (choice == logout)
@@ -38,11 +42,12 @@ int main() {
 				EditInfo();
 				break;
 			}
-
+			
 		}
-
+		
 
 
 		
 	}
+
 }

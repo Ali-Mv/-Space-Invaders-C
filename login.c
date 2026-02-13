@@ -1,7 +1,5 @@
 ﻿#include "defines.h"
 
-User currentUser;
-
 void getPasswordMasked(char* password) {
     int i = 0;
     char ch;
@@ -72,6 +70,7 @@ void SignUp() {
         FILE* file;
         int exists = 0;
         char confirmPass[MAX_PASSWORD_LEN];
+        memset(&newUser, 0, sizeof(User));
 
         printf("================ Sign Up ================\n");
 
@@ -124,6 +123,10 @@ void SignUp() {
         newUser.score = 0;
         newUser.gold = 0;
         newUser.max_level = 1;
+        newUser.health_lvl = 0;
+        newUser.damage_lvl = 0; 
+        newUser.ammo_lvl = 0;
+
 
         file = fopen(USER_FILE, "ab");
         if (file == NULL) {

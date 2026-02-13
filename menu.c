@@ -1,7 +1,5 @@
 #include "defines.h"
 
-User currentUser;
-
 void getPassMaskedMenu(char* password) {
     int i = 0;
     char ch;
