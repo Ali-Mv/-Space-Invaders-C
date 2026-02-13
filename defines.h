@@ -34,6 +34,7 @@
 enum {
     user_exists_not = 1,
     user_exists ,
+    Forgot_Password,
     want_exit ,
 };
 enum {

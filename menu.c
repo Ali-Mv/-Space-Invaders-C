@@ -188,11 +188,12 @@ void EditInfo() {
     printf("\n=== EDIT PROFILE ===\n");
     printf("1. Change Username\n");
     printf("2. Change Password\n");
-    printf("3. Back\n");
+    printf("3. Delete Account\n");
+    printf("4. Back\n");
     printf("Select option: ");
     scanf("%d", &choice);
 
-    if (choice == 3) return;
+    if (choice == 4) return;
 
     if (choice == 1) {
         char newName[MAX_USERNAME_LEN];
@@ -274,4 +275,57 @@ void EditInfo() {
         printf("\nPassword changed successfully!\n");
         Sleep(1000);
     }
+    else if (choice == 3) {
+        printf("\nAre you sure you want to DELETE your account? (y/N): ");
+        char confirm,tempchar;
+        while (1) {
+            tempchar = getchar();
+            if (tempchar == '\n')
+                break;
+            confirm = tempchar;
+        }
+
+        if (confirm != 'y' && confirm != 'Y') {
+            printf("\nAccount deletion cancelled.\n");
+            Sleep(1000);
+            return;
+        }
+
+        User users[MAX_USERS];
+        int count = 0;
+        FILE* fp = fopen(USER_FILE, "rb");
+        if (fp) {
+            while (fread(&users[count], sizeof(User), 1, fp) && count < MAX_USERS) {
+                count++;
+            }
+            fclose(fp);
+        }
+
+        int found = 0;
+        for (int i = 0; i < count; i++) {
+            if (strcmp(users[i].username, currentUser.username) == 0) {
+                found = 1;
+                users[i] = users[count - 1];
+                count--;
+                break;
+            }
+        }
+
+        if (found) {
+            fp = fopen(USER_FILE, "wb");
+            for (int i = 0; i < count; i++) {
+                fwrite(&users[i], sizeof(User), 1, fp);
+            }
+            fclose(fp);
+
+            printf("\nAccount deleted successfully!\n");
+            Sleep(1500);
+            return;
+        }
+        else {
+            printf("\nError deleting account.\n");
+        }
+        Sleep(1500);
+    }
+
 }

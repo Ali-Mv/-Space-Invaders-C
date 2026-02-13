@@ -11,16 +11,17 @@ int main() {
 		
 		int login_status = AskPlayerLogin();
 
-		if (login_status == want_exit)
+		if (login_status == want_exit) 
 			break;
-		switch (login_status) {
-
-			case user_exists_not :
-				SignUp();
-				break;
-			case user_exists :
-				Login();
-				break;
+		else if (login_status == Forgot_Password) {
+			ForgotPassword();
+			continue; 
+		}
+		else if (login_status == user_exists_not) {
+			SignUp();
+		}
+		else if (login_status == user_exists) {
+			Login();
 		}
 		
 		while (1) {

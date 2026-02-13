@@ -27,6 +27,116 @@ void getPasswordMasked(char* password) {
     }
     printf("\n");
 }
+int isValidEmail(const char* email) {
+    int len = strlen(email);
+    if (len < 6) return 0;
+
+    int atCount = 0;
+    int atPos = -1;
+    int dotPosAfterAt = -1;
+
+    if (!isalnum(email[0])) return 0;
+
+    for (int i = 0; i < len; i++) {
+        char c = email[i];
+
+        if (!isalnum(c) && c != '.' && c != '_' && c != '-' && c != '@') {
+            return 0;
+        }
+
+        if (c == ' ') return 0;
+
+        if (c == '@') {
+            atCount++;
+            atPos = i;
+            if (i == 0 || i == len - 1) return 0;
+        }
+
+        if (atCount == 1 && c == '.' && i > atPos + 1) {
+            dotPosAfterAt = i;
+        }
+    }
+    if (atCount != 1) return 0;
+    if (dotPosAfterAt == -1) return 0;
+    if (len - dotPosAfterAt <= 2) return 0;
+    if (atPos < 1) return 0;
+    if (dotPosAfterAt - atPos <= 1) return 0;
+
+    return true;
+}
+void ForgotPassword() {
+    char inputUser[MAX_USERNAME_LEN];
+    char inputEmail[50];
+    User tempUser;
+    FILE* file;
+    int found = 0;
+    char newPass[MAX_PASSWORD_LEN];
+    char confirmPass[MAX_PASSWORD_LEN];
+
+    system("cls");
+    printf("================ Forgot Password ================\n");
+
+    printf("Enter your Username: ");
+    scanf("%s", inputUser);
+
+    printf("Enter your registered Email: ");
+    scanf("%s", inputEmail);
+
+    file = fopen(USER_FILE, "rb+");
+
+    if (file == NULL) {
+        printf("\nError: Could not open user database or no users exist.\n");
+        printf("Press any key to return...");
+        _getch();
+        return;
+    }
+
+    while (fread(&tempUser, sizeof(User), 1, file)) {
+        if (strcmp(tempUser.username, inputUser) == 0 &&
+            strcmp(tempUser.email, inputEmail) == 0) {
+
+            found = 1;
+            printf("\nUser verified!\n");
+
+            while (1) {
+                printf("\nEnter New Password (min 8,max 20 chars): ");
+                getPasswordMasked(newPass);
+
+                if (strlen(newPass) < 8) {
+                    printf("Error: Password must be at least 8 characters long!\n");
+                    continue;
+                }
+
+                printf("Confirm New Password: ");
+                getPasswordMasked(confirmPass);
+
+                if (strcmp(newPass, confirmPass) != 0) {
+                    printf("Error: Passwords do not match! Try again.\n");
+                }
+                else {
+                    strcpy(tempUser.password, newPass);
+                    break;
+                }
+            }
+
+            fseek(file, -((long)sizeof(User)), SEEK_CUR);
+            fwrite(&tempUser, sizeof(User), 1, file);
+
+            printf("\nPassword successfully reset!\n");
+            break;
+        }
+    }
+
+    fclose(file);
+
+    if (!found) {
+        printf("\nError: Username and Email combination not found.\n");
+    }
+
+    printf("Press any key to return to menu...");
+    _getch();
+}
+
 
 void WelcomeUser() {
     system("cls");
@@ -51,8 +161,9 @@ int AskPlayerLogin() {
     printf("================ Login Page ================\n");
     printf("1) Sign Up\n");
     printf("2) Login\n");
-    printf("3) Exit\n");
-    printf("\nChoose option (1-3): ");
+    printf("3) Forgot Password\n");
+    printf("4) Exit\n");
+    printf("\nChoose option (1-4): ");
 
     while (scanf("%d", &choice) != 1 || (choice < 1 || choice > 3)) {
         printf("Invalid input. Try again: ");
@@ -119,6 +230,18 @@ void SignUp() {
                 break;
             }
         }
+        while (1) {
+            system("cls");
+            printf("Enter Email: ");
+            scanf("%49s", newUser.email);
+            if (!isValidEmail(newUser.email)) {
+                printf("\nError: Invalid email format! (example: user@example.com)\n");
+                printf("Press any key to try again...");
+                _getch();
+                continue;
+            }
+            break;
+        }
 
         newUser.score = 0;
         newUser.gold = 0;
@@ -165,7 +288,7 @@ void Login() {
         getPasswordMasked(inputPass);
 
         file = fopen(USER_FILE, "rb");
-        if (file == NULL) {
+        if (file == NULL) { 
             printf("\nNo users registered yet!\n");
             printf("Press any key to return...");
             _getch();
